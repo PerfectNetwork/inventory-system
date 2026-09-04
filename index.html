@@ -1,0 +1,3812 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>نظام جرد المخزون</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+
+:root{
+    --bg:#080d18;
+    --bg2:#0d1422;
+    --card:#111a2a;
+    --card2:#162033;
+    --border:#26344b;
+
+    --primary:#3b82f6;
+    --primary2:#2563eb;
+
+    --green:#22c55e;
+    --green-bg:#0b3822;
+
+    --red:#ef4444;
+    --red-bg:#3a1115;
+
+    --orange:#f59e0b;
+    --orange-bg:#3a2709;
+
+    --text:#f8fafc;
+    --muted:#94a3b8;
+
+    --shadow:0 15px 45px rgba(0,0,0,.30);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    background:
+        radial-gradient(circle at top right,#172554 0,transparent 30%),
+        radial-gradient(circle at bottom left,#082f49 0,transparent 25%),
+        var(--bg);
+    color:var(--text);
+    font-family:'Cairo',sans-serif;
+    min-height:100vh;
+}
+
+button,
+input,
+select{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.container{
+    width:min(1200px,94%);
+    margin:auto;
+    padding:25px 0 50px;
+}
+
+/* ================= HEADER ================= */
+
+.header{
+    position:relative;
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37,99,235,.20),
+            rgba(17,24,39,.95)
+        );
+
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:28px;
+
+    box-shadow:var(--shadow);
+
+    margin-bottom:20px;
+}
+
+.header::before{
+    content:"";
+    position:absolute;
+    width:250px;
+    height:250px;
+    background:#2563eb;
+    filter:blur(120px);
+    opacity:.18;
+    top:-120px;
+    right:-80px;
+}
+
+.header-content{
+    position:relative;
+    z-index:1;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:13px;
+}
+
+.logo-icon{
+    width:55px;
+    height:55px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:17px;
+
+    background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+
+    font-size:27px;
+
+    box-shadow:0 10px 30px rgba(37,99,235,.35);
+}
+
+.logo h1{
+    margin:0;
+    font-size:26px;
+    font-weight:900;
+}
+
+.logo p{
+    margin:2px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* ================= STATS ================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-top:25px;
+}
+
+.stat{
+    background:rgba(15,23,42,.72);
+    border:1px solid var(--border);
+    border-radius:17px;
+    padding:15px;
+}
+
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.stat-icon{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:#1e293b;
+
+    font-size:18px;
+}
+
+.stat span{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.stat strong{
+    display:block;
+    margin-top:5px;
+    font-size:23px;
+}
+
+/* ================= TOOLBAR ================= */
+
+.toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+
+.search{
+    flex:1;
+    min-width:230px;
+
+    background:var(--card);
+    border:1px solid var(--border);
+
+    color:white;
+
+    padding:13px 16px;
+
+    border-radius:13px;
+
+    outline:none;
+}
+
+.search:focus{
+    border-color:var(--primary);
+}
+
+.btn{
+    border:1px solid var(--border);
+    background:#172235;
+    color:white;
+
+    padding:12px 17px;
+
+    border-radius:13px;
+
+    font-weight:700;
+
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-1px);
+    filter:brightness(1.1);
+}
+
+.btn:active{
+    transform:scale(.98);
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+    border-color:#3b82f6;
+}
+
+.btn-green{
+    background:#15803d;
+    border-color:#16a34a;
+}
+
+.btn-red{
+    background:#991b1b;
+    border-color:#dc2626;
+}
+
+/* ================= TABS ================= */
+
+.tabs{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:7px;
+
+    margin-bottom:18px;
+
+    scrollbar-width:none;
+}
+
+.tabs::-webkit-scrollbar{
+    display:none;
+}
+
+.tab{
+    flex:1;
+    min-width:140px;
+
+    padding:12px;
+
+    background:transparent;
+    color:var(--muted);
+
+    border:0;
+
+    border-radius:11px;
+
+    font-weight:800;
+}
+
+.tab.active{
+    background:#1d4ed8;
+    color:white;
+
+    box-shadow:0 5px 18px rgba(37,99,235,.25);
+}
+
+/* ================= SECTION ================= */
+
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin:20px 2px 12px;
+}
+
+.section-title h2{
+    margin:0;
+    font-size:20px;
+}
+
+.section-title span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* ================= CARDS ================= */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.card{
+    background:
+        linear-gradient(
+            145deg,
+            rgba(22,32,51,.98),
+            rgba(13,20,34,.98)
+        );
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    padding:18px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+
+    transition:.2s;
+}
+
+.card:hover{
+    border-color:#3b4f70;
+    transform:translateY(-2px);
+}
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:15px;
+}
+
+.product-name{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+}
+
+.product-icon{
+    width:43px;
+    height:43px;
+    min-width:43px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:13px;
+
+    background:#1e293b;
+
+    font-size:20px;
+}
+
+.product-name h3{
+    margin:0;
+    font-size:17px;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.product-name small{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.pack-badge{
+    background:#172554;
+    color:#93c5fd;
+
+    border:1px solid #1e40af;
+
+    padding:6px 9px;
+
+    border-radius:999px;
+
+    font-size:10px;
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+/* ================= INPUTS ================= */
+
+.fields{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+
+.field label{
+    display:block;
+
+    color:#94a3b8;
+
+    font-size:11px;
+
+    margin-bottom:5px;
+}
+
+.field input,
+.field select{
+    width:100%;
+
+    background:#09111f;
+
+    color:white;
+
+    border:1px solid #2b3b55;
+
+    padding:11px;
+
+    border-radius:11px;
+
+    outline:none;
+
+    transition:.2s;
+}
+
+.field input:focus,
+.field select:focus{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 2px rgba(59,130,246,.10);
+}
+
+.field input::placeholder{
+    color:#64748b;
+}
+
+.field input[type="number"]{
+    direction:ltr;
+    text-align:center;
+}
+
+/* ================= TOTAL ================= */
+
+.total-box{
+    margin-top:13px;
+
+    padding:14px;
+
+    background:#09111f;
+
+    border:1px solid #1d2b40;
+
+    border-radius:15px;
+}
+
+.total-row{
+    display:flex;
+    justify-content:space-between;
+
+    color:#cbd5e1;
+
+    font-size:12px;
+
+    margin:5px 0;
+}
+
+.total-row.main{
+    padding-top:7px;
+    border-top:1px solid #1d2b40;
+
+    margin-top:9px;
+}
+
+.total-row.main strong{
+    font-size:23px;
+    color:white;
+}
+
+.total-row.actual-row{
+    color:#bfdbfe;
+}
+
+.total-row.actual-row strong{
+    font-size:18px;
+    color:#93c5fd;
+}
+
+/* ================= RESULT ================= */
+
+.result{
+    margin-top:11px;
+
+    padding:11px;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    font-size:13px;
+
+    font-weight:900;
+}
+
+.result.match{
+    background:var(--green-bg);
+    color:#86efac;
+    border:1px solid #166534;
+}
+
+.result.short{
+    background:var(--red-bg);
+    color:#fca5a5;
+    border:1px solid #991b1b;
+}
+
+.result.over{
+    background:var(--orange-bg);
+    color:#fcd34d;
+    border:1px solid #92400e;
+}
+
+.result.pending{
+    background:#172235;
+    color:#94a3b8;
+    border:1px solid #334155;
+}
+
+/* ================= CARD ACTIONS ================= */
+
+.card-actions{
+    display:flex;
+    gap:8px;
+
+    margin-top:11px;
+}
+
+.card-actions button{
+    flex:1;
+    padding:9px;
+
+    border-radius:10px;
+
+    font-size:12px;
+}
+
+/* ================= REPORT ================= */
+
+.report{
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    padding:20px;
+
+    margin-top:20px;
+}
+
+.report h2{
+    margin-top:0;
+}
+
+.report-box{
+    background:#09111f;
+
+    border:1px solid #243249;
+
+    border-radius:15px;
+
+    padding:15px;
+
+    white-space:pre-wrap;
+
+    color:#dbeafe;
+
+    line-height:1.8;
+
+    font-size:13px;
+
+    max-height:400px;
+
+    overflow:auto;
+}
+
+.report-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.report-actions .btn{
+    width:100%;
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.75);
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:15px;
+
+    z-index:1000;
+
+    backdrop-filter:blur(7px);
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(500px,100%);
+
+    max-height:90vh;
+    overflow-y:auto;
+
+    background:#111a2a;
+
+    border:1px solid #334155;
+
+    border-radius:24px;
+
+    padding:22px;
+
+    box-shadow:0 25px 80px #0008;
+}
+
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:18px;
+}
+
+.modal-head h2{
+    margin:0;
+}
+
+.close{
+    width:35px;
+    height:35px;
+
+    border-radius:10px;
+
+    background:#263449;
+
+    color:white;
+
+    border:0;
+}
+
+.close:hover{
+    background:#334155;
+}
+
+.form{
+    display:grid;
+    gap:13px;
+}
+
+.form label{
+    display:block;
+
+    color:#94a3b8;
+
+    font-size:12px;
+
+    margin-bottom:5px;
+}
+
+.form input,
+.form select{
+    width:100%;
+
+    background:#09111f;
+
+    border:1px solid #334155;
+
+    color:white;
+
+    padding:12px;
+
+    border-radius:11px;
+
+    outline:none;
+}
+
+.form input:focus,
+.form select:focus{
+    border-color:#3b82f6;
+}
+
+/* ================= EMPTY ================= */
+
+.empty{
+    text-align:center;
+
+    padding:50px 15px;
+
+    color:#64748b;
+
+    background:var(--card);
+
+    border:1px dashed #334155;
+
+    border-radius:20px;
+
+    grid-column:1/-1;
+}
+
+/* ================= TOAST ================= */
+
+.toast{
+    position:fixed;
+
+    left:20px;
+    bottom:20px;
+
+    max-width:calc(100% - 40px);
+
+    background:#172235;
+
+    border:1px solid #334155;
+
+    color:white;
+
+    padding:13px 17px;
+
+    border-radius:13px;
+
+    box-shadow:var(--shadow);
+
+    transform:translateY(120px);
+
+    opacity:0;
+
+    transition:.3s;
+
+    z-index:2000;
+
+    font-size:13px;
+}
+
+.toast.show{
+    transform:translateY(0);
+    opacity:1;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+    .stats{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .container{
+        width:96%;
+        padding-top:12px;
+    }
+
+    .header{
+        padding:20px;
+        border-radius:21px;
+    }
+
+    .logo h1{
+        font-size:21px;
+    }
+
+    .logo p{
+        font-size:11px;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .stat strong{
+        font-size:20px;
+    }
+
+    .fields{
+        grid-template-columns:1fr;
+    }
+
+    .toolbar{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+    }
+
+    .search{
+        grid-column:1/-1;
+        width:100%;
+    }
+
+    .btn{
+        padding:11px 8px;
+        font-size:12px;
+    }
+
+    .card-header{
+        align-items:flex-start;
+    }
+
+    .pack-badge{
+        font-size:9px;
+    }
+
+    .report-actions{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:380px){
+
+    .logo-icon{
+        width:48px;
+        height:48px;
+        min-width:48px;
+        font-size:23px;
+    }
+
+    .logo h1{
+        font-size:18px;
+    }
+
+    .stat{
+        padding:12px;
+    }
+
+    .stat-icon{
+        width:32px;
+        height:32px;
+        font-size:15px;
+    }
+
+}
+
+/* ================= PRINT ================= */
+
+@media print{
+
+    body{
+        background:white !important;
+        color:black !important;
+    }
+
+    .toolbar,
+    .tabs,
+    .card-actions,
+    .modal,
+    .toast,
+    .report-actions{
+        display:none !important;
+    }
+
+    .container{
+        width:100%;
+        padding:0;
+    }
+
+    .header,
+    .card,
+    .report{
+        box-shadow:none !important;
+        background:white !important;
+        color:black !important;
+        border:1px solid #ddd !important;
+    }
+
+    .header::before{
+        display:none;
+    }
+
+    .logo h1,
+    .section-title h2,
+    .product-name h3,
+    .report h2,
+    .stat strong{
+        color:black !important;
+    }
+
+    .logo p,
+    .product-name small,
+    .stat span,
+    .section-title span{
+        color:#555 !important;
+    }
+
+    .report-box,
+    .total-box{
+        background:#fafafa !important;
+        color:black !important;
+        border-color:#ddd !important;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header class="header">
+
+<div class="header-content">
+
+<div class="logo">
+
+<div class="logo-icon">
+📦
+</div>
+
+<div>
+<h1>نظام جرد المخزون</h1>
+<p>إدارة ومتابعة المخزون بطريقة سهلة وسريعة</p>
+</div>
+
+</div>
+
+<div class="stats">
+
+<div class="stat">
+<div class="stat-top">
+<span>الأصناف</span>
+<div class="stat-icon">📋</div>
+</div>
+<strong id="statItems">0</strong>
+</div>
+
+<div class="stat">
+<div class="stat-top">
+<span>إجمالي المخزون</span>
+<div class="stat-icon">📦</div>
+</div>
+<strong id="statTotal">0</strong>
+</div>
+
+<div class="stat">
+<div class="stat-top">
+<span>التلاجة</span>
+<div class="stat-icon">🧊</div>
+</div>
+<strong id="statFridge">0</strong>
+</div>
+
+<div class="stat">
+<div class="stat-top">
+<span>العجز</span>
+<div class="stat-icon">🔴</div>
+</div>
+<strong id="statShort">0</strong>
+</div>
+
+<div class="stat">
+<div class="stat-top">
+<span>الزيادة</span>
+<div class="stat-icon">🟢</div>
+</div>
+<strong id="statOver">0</strong>
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+
+<div class="toolbar">
+
+<input
+class="search"
+id="search"
+type="search"
+placeholder="🔎 ابحث عن صنف..."
+autocomplete="off"
+>
+
+<button class="btn btn-primary" id="addBtn">
+＋ إضافة صنف
+</button>
+
+<button class="btn btn-green" id="whatsappBtn">
+🟢 إرسال للواتساب
+</button>
+
+<button class="btn" id="copyBtn">
+📋 نسخ التقرير
+</button>
+
+<button class="btn btn-red" id="clearBtn">
+↻ تصفير العد
+</button>
+
+</div>
+
+
+<div class="tabs">
+
+<button
+class="tab active"
+id="tabCold"
+data-category="cold"
+>
+🥤 المشروبات الباردة
+</button>
+
+<button
+class="tab"
+id="tabHot"
+data-category="hot"
+>
+☕ المشروبات الساخنة
+</button>
+
+<button
+class="tab"
+id="tabAll"
+data-category="all"
+>
+📊 كل الأصناف
+</button>
+
+</div>
+
+
+<div class="section-title">
+
+<h2 id="sectionTitle">
+🥤 المشروبات الباردة
+</h2>
+
+<span id="sectionCount">
+0 صنف
+</span>
+
+</div>
+
+
+<div id="cards" class="cards"></div>
+
+
+<div class="report">
+
+<h2>📋 ملخص الجرد</h2>
+
+<div
+id="reportText"
+class="report-box"
+>
+لا يوجد بيانات بعد.
+</div>
+
+<br>
+
+<div class="report-actions">
+
+<button
+class="btn btn-green"
+id="reportWhatsappBtn"
+>
+🟢 إرسال التقرير إلى واتساب
+</button>
+
+<button
+class="btn"
+id="printBtn"
+>
+🖨️ طباعة التقرير
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div
+class="modal"
+id="modal"
+>
+
+<div class="modal-box">
+
+<div class="modal-head">
+
+<h2 id="modalTitle">
+إضافة صنف
+</h2>
+
+<button
+class="close"
+id="closeModalBtn"
+>
+✕
+</button>
+
+</div>
+
+
+<div class="form">
+
+<div>
+
+<label>
+اسم الصنف
+</label>
+
+<input
+id="productName"
+placeholder="مثال: ببسي"
+maxlength="100"
+autocomplete="off"
+>
+
+</div>
+
+
+<div>
+
+<label>
+القسم
+</label>
+
+<select id="productCategory">
+
+<option value="cold">
+🥤 المشروبات الباردة
+</option>
+
+<option value="hot">
+☕ المشروبات الساخنة
+</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>
+نوع الوحدة
+</label>
+
+<select id="unitType">
+
+<option value="carton">
+📦 كرتونة
+</option>
+
+<option value="box">
+🗃️ علبة
+</option>
+
+<option value="piece">
+🥤 قطعة
+</option>
+
+<option value="bag">
+🛍️ كيس
+</option>
+
+<option value="unit">
+🔢 وحدة
+</option>
+
+</select>
+
+</div>
+
+
+<div id="packSizeWrap">
+
+<label>
+عدد العبوات داخل الكرتونة
+</label>
+
+<select id="packSize">
+
+<option value="24">
+24 عبوة
+</option>
+
+<option value="12">
+12 عبوة
+</option>
+
+</select>
+
+</div>
+
+
+<button
+class="btn btn-primary"
+id="saveProductBtn"
+>
+💾 حفظ الصنف
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div
+class="toast"
+id="toast"
+>
+تم الحفظ بنجاح
+</div>
+
+
+<script>
+
+"use strict";
+
+/* =========================================================
+   DATABASE
+========================================================= */
+
+const STORAGE_KEY = "smart_inventory_2026";
+
+const WHATSAPP_PHONE = "201028885827";
+
+let products = [];
+
+let currentCategory = "cold";
+
+let editingId = null;
+
+let toastTimer = null;
+
+
+/* =========================================================
+   DEFAULT PRODUCTS
+   لا يوجد أي افتراض بعدد 12 أو 24
+========================================================= */
+
+const DEFAULT_PRODUCTS = [
+
+    {
+        id:1,
+        name:"برل",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:2,
+        name:"في كولا",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:3,
+        name:"فيروز",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:4,
+        name:"راني",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:5,
+        name:"آيس كوفي",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:6,
+        name:"ريدبول",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:7,
+        name:"ببسي",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:8,
+        name:"فيوري",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:9,
+        name:"ميه كبيرة",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:10,
+        name:"ميه صغيرة",
+        category:"cold",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:11,
+        name:"نسكافيه 3x1",
+        category:"hot",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:12,
+        name:"كوفي مكس",
+        category:"hot",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:13,
+        name:"بونجورنو",
+        category:"hot",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:14,
+        name:"شاي",
+        category:"hot",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:15,
+        name:"نعناع",
+        category:"hot",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    },
+
+    {
+        id:16,
+        name:"ينسون",
+        category:"hot",
+        unit:"unit",
+        pack:1,
+        cartons:0,
+        open:0,
+        fridge:0,
+        actual:""
+    }
+
+];
+
+
+/* =========================================================
+   SAFE NUMBER
+========================================================= */
+
+function toNumber(value){
+
+    if(
+        value === null ||
+        value === undefined ||
+        value === ""
+    ){
+        return 0;
+    }
+
+    const number = Number(value);
+
+    if(!Number.isFinite(number)){
+        return 0;
+    }
+
+    return Math.max(0,Math.floor(number));
+
+}
+
+
+/* =========================================================
+   NORMALIZE
+========================================================= */
+
+function normalizeProduct(product,index){
+
+    const safeProduct =
+        product && typeof product === "object"
+        ? product
+        : {};
+
+    const unit =
+        [
+            "carton",
+            "box",
+            "piece",
+            "bag",
+            "unit"
+        ].includes(safeProduct.unit)
+        ? safeProduct.unit
+        : "unit";
+
+    const category =
+        safeProduct.category === "hot"
+        ? "hot"
+        : "cold";
+
+    const pack =
+        unit === "carton"
+        ? (
+            Number(safeProduct.pack) === 12
+            ? 12
+            : 24
+        )
+        : 1;
+
+    let cartons =
+        toNumber(safeProduct.cartons);
+
+    let open =
+        toNumber(safeProduct.open);
+
+    const fridge =
+        toNumber(safeProduct.fridge);
+
+    let actual = "";
+
+    if(
+        safeProduct.actual !== "" &&
+        safeProduct.actual !== null &&
+        safeProduct.actual !== undefined
+    ){
+
+        const actualNumber =
+            Number(safeProduct.actual);
+
+        if(Number.isFinite(actualNumber)){
+
+            actual =
+                Math.max(
+                    0,
+                    Math.floor(actualNumber)
+                );
+
+        }
+
+    }
+
+    if(unit === "carton"){
+
+        open =
+            Math.min(
+                open,
+                pack
+            );
+
+    }
+
+    return {
+
+        id:
+            safeProduct.id !== undefined
+            ? safeProduct.id
+            : Date.now() + index,
+
+        name:
+            String(
+                safeProduct.name || "صنف بدون اسم"
+            ).trim(),
+
+        category,
+
+        unit,
+
+        pack,
+
+        cartons,
+
+        open,
+
+        fridge,
+
+        actual
+
+    };
+
+}
+
+
+/* =========================================================
+   LOAD
+========================================================= */
+
+function loadProducts(){
+
+    try{
+
+        const saved =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+        if(!saved){
+
+            products =
+                DEFAULT_PRODUCTS.map(
+                    product =>
+                        normalizeProduct(product)
+                );
+
+            save();
+
+            return;
+
+        }
+
+        const parsed =
+            JSON.parse(saved);
+
+        if(!Array.isArray(parsed)){
+
+            throw new Error(
+                "Invalid database"
+            );
+
+        }
+
+        products =
+            parsed.map(
+                (product,index) =>
+                    normalizeProduct(
+                        product,
+                        index
+                    )
+            );
+
+        save();
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Inventory database error:",
+            error
+        );
+
+        products =
+            DEFAULT_PRODUCTS.map(
+                product =>
+                    normalizeProduct(product)
+            );
+
+        save();
+
+        showToast(
+            "تم استعادة بيانات الأصناف الأساسية"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function save(){
+
+    try{
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(products)
+        );
+
+    }
+
+    catch(error){
+
+        console.error(
+            "LocalStorage save error:",
+            error
+        );
+
+        showToast(
+            "تعذر حفظ البيانات على الجهاز"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   TOTAL
+   المخزن = cartons + open
+   التلاجة = fridge
+   الإجمالي = المخزن + التلاجة
+========================================================= */
+
+function getWarehouseTotal(product){
+
+    if(!product){
+        return 0;
+    }
+
+    const cartons =
+        toNumber(product.cartons);
+
+    const open =
+        toNumber(product.open);
+
+    if(product.unit === "carton"){
+
+        const pack =
+            product.pack === 12
+            ? 12
+            : 24;
+
+        return (
+            cartons * pack
+        ) + open;
+
+    }
+
+    return cartons + open;
+
+}
+
+
+function getTotal(product){
+
+    if(!product){
+        return 0;
+    }
+
+    return (
+        getWarehouseTotal(product) +
+        toNumber(product.fridge)
+    );
+
+}
+
+
+/* =========================================================
+   DIFFERENCE
+========================================================= */
+
+function getDifference(product){
+
+    if(
+        !product ||
+        product.actual === "" ||
+        product.actual === null ||
+        product.actual === undefined
+    ){
+
+        return null;
+
+    }
+
+    return (
+        toNumber(product.actual) -
+        getTotal(product)
+    );
+
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+function setCategory(category){
+
+    if(
+        ![
+            "cold",
+            "hot",
+            "all"
+        ].includes(category)
+    ){
+
+        category = "cold";
+
+    }
+
+    currentCategory =
+        category;
+
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(tab => {
+
+            tab.classList.toggle(
+                "active",
+                tab.dataset.category === category
+            );
+
+        });
+
+
+    const title =
+        document.getElementById(
+            "sectionTitle"
+        );
+
+
+    if(category === "cold"){
+
+        title.textContent =
+            "🥤 المشروبات الباردة";
+
+    }
+
+    else if(category === "hot"){
+
+        title.textContent =
+            "☕ المشروبات الساخنة";
+
+    }
+
+    else{
+
+        title.textContent =
+            "📊 كل الأصناف";
+
+    }
+
+
+    render();
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    const cards =
+        document.getElementById(
+            "cards"
+        );
+
+    const searchInput =
+        document.getElementById(
+            "search"
+        );
+
+    const search =
+        searchInput
+        ? searchInput.value
+            .trim()
+            .toLowerCase()
+        : "";
+
+
+    const filtered =
+        products.filter(product => {
+
+            const categoryMatch =
+                currentCategory === "all" ||
+                product.category === currentCategory;
+
+            const name =
+                String(
+                    product.name || ""
+                ).toLowerCase();
+
+            return (
+                categoryMatch &&
+                name.includes(search)
+            );
+
+        });
+
+
+    document.getElementById(
+        "sectionCount"
+    ).textContent =
+        `${filtered.length} صنف`;
+
+
+    cards.innerHTML = "";
+
+
+    if(filtered.length === 0){
+
+        cards.innerHTML = `
+
+            <div class="empty">
+
+                🔎
+
+                <br><br>
+
+                لا يوجد أصناف مطابقة
+
+            </div>
+
+        `;
+
+        updateStats();
+        updateReport();
+
+        return;
+
+    }
+
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    filtered.forEach(product => {
+
+        const warehouse =
+            getWarehouseTotal(product);
+
+        const fridge =
+            toNumber(product.fridge);
+
+        const total =
+            warehouse + fridge;
+
+        const actual =
+            product.actual === ""
+            ? null
+            : toNumber(product.actual);
+
+        const difference =
+            getDifference(product);
+
+
+        let resultHTML = `
+
+            <div class="result pending">
+                ⏳ في انتظار العد الفعلي
+            </div>
+
+        `;
+
+
+        if(difference !== null){
+
+            if(difference === 0){
+
+                resultHTML = `
+
+                    <div class="result match">
+                        ✅ العدد مطابق تمامًا
+                    </div>
+
+                `;
+
+            }
+
+            else if(difference < 0){
+
+                resultHTML = `
+
+                    <div class="result short">
+                        🔴 عجز ${Math.abs(difference)} عبوة
+                    </div>
+
+                `;
+
+            }
+
+            else{
+
+                resultHTML = `
+
+                    <div class="result over">
+                        🟢 زيادة ${difference} عبوة
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        const icon =
+            product.category === "cold"
+            ? "🥤"
+            : "☕";
+
+
+        const unitText =
+            getUnitText(product.unit);
+
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "card";
+
+
+        let firstFields = "";
+
+
+        if(product.unit === "carton"){
+
+            firstFields = `
+
+                <div class="field">
+
+                    <label>
+                        📦 الكراتين الكاملة بالمخزن
+                    </label>
+
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                        value="${product.cartons}"
+                        data-id="${product.id}"
+                        data-key="cartons"
+                        class="inventory-input"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        📦 العبوات المفتوحة بالمخزن
+                    </label>
+
+                    <input
+                        type="number"
+                        min="0"
+                        max="${product.pack}"
+                        step="1"
+                        inputmode="numeric"
+                        value="${product.open}"
+                        data-id="${product.id}"
+                        data-key="open"
+                        class="inventory-input"
+                    >
+
+                </div>
+
+            `;
+
+        }
+
+        else{
+
+            firstFields = `
+
+                <div class="field">
+
+                    <label>
+                        📦 العدد الموجود بالمخزن
+                    </label>
+
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                        value="${product.cartons}"
+                        data-id="${product.id}"
+                        data-key="cartons"
+                        class="inventory-input"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        ➕ إضافي بالمخزن
+                    </label>
+
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                        value="${product.open}"
+                        data-id="${product.id}"
+                        data-key="open"
+                        class="inventory-input"
+                    >
+
+                </div>
+
+            `;
+
+        }
+
+
+        card.innerHTML = `
+
+            <div class="card-header">
+
+                <div class="product-name">
+
+                    <div class="product-icon">
+                        ${icon}
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            ${escapeHTML(product.name)}
+                        </h3>
+
+                        <small>
+                            ${escapeHTML(unitText)}
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pack-badge">
+                    ${escapeHTML(unitText)}
+                </div>
+
+            </div>
+
+
+            <div class="fields">
+
+                ${firstFields}
+
+
+                <div class="field">
+
+                    <label>
+                        🧊 الموجود داخل التلاجة
+                    </label>
+
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                        value="${fridge}"
+                        data-id="${product.id}"
+                        data-key="fridge"
+                        class="inventory-input"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        🔢 العد الفعلي النهائي
+                    </label>
+
+                    <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputmode="numeric"
+                        placeholder="اكتب العدد الفعلي"
+                        value="${actual === null ? "" : actual}"
+                        data-id="${product.id}"
+                        data-key="actual"
+                        class="inventory-input actual-input"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="total-box">
+
+                <div class="total-row">
+
+                    <span>
+                        📦 إجمالي المخزن
+                    </span>
+
+                    <strong>
+                        ${warehouse}
+                    </strong>
+
+                </div>
+
+
+                <div class="total-row">
+
+                    <span>
+                        🧊 إجمالي التلاجة
+                    </span>
+
+                    <strong>
+                        ${fridge}
+                    </strong>
+
+                </div>
+
+
+                <div class="total-row main">
+
+                    <span>
+                        📊 إجمالي النظام
+                    </span>
+
+                    <strong>
+                        ${total}
+                    </strong>
+
+                </div>
+
+
+                ${
+                    actual !== null
+                    ?
+                    `
+
+                    <div class="total-row actual-row">
+
+                        <span>
+                            🔢 العد الفعلي
+                        </span>
+
+                        <strong>
+                            ${actual}
+                        </strong>
+
+                    </div>
+
+                    `
+                    :
+                    ""
+                }
+
+            </div>
+
+
+            ${resultHTML}
+
+
+            <div class="card-actions">
+
+                <button
+                    class="btn edit-btn"
+                    data-id="${product.id}"
+                >
+                    ✏️ تعديل
+                </button>
+
+
+                <button
+                    class="btn btn-red delete-btn"
+                    data-id="${product.id}"
+                >
+                    🗑️ حذف
+                </button>
+
+            </div>
+
+        `;
+
+
+        fragment.appendChild(card);
+
+    });
+
+
+    cards.appendChild(fragment);
+
+
+    updateStats();
+
+    updateReport();
+
+}
+
+
+/* =========================================================
+   UPDATE VALUE
+========================================================= */
+
+function updateValue(id,key,value){
+
+    const product =
+        products.find(
+            p =>
+                String(p.id) ===
+                String(id)
+        );
+
+
+    if(!product){
+        return;
+    }
+
+
+    if(key === "actual"){
+
+        if(
+            value === "" ||
+            value === null ||
+            value === undefined
+        ){
+
+            product.actual = "";
+
+        }
+
+        else{
+
+            product.actual =
+                toNumber(value);
+
+        }
+
+    }
+
+    else{
+
+        let number =
+            toNumber(value);
+
+
+        if(
+            key === "open" &&
+            product.unit === "carton"
+        ){
+
+            if(number > product.pack){
+
+                number =
+                    product.pack;
+
+                showToast(
+                    `أقصى عدد للعبوات المفتوحة هو ${product.pack}`
+                );
+
+            }
+
+        }
+
+
+        product[key] =
+            number;
+
+    }
+
+
+    save();
+
+    render();
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+
+    let total = 0;
+
+    let fridge = 0;
+
+    let shortage = 0;
+
+    let over = 0;
+
+
+    products.forEach(product => {
+
+        total +=
+            getTotal(product);
+
+        fridge +=
+            toNumber(product.fridge);
+
+
+        const difference =
+            getDifference(product);
+
+
+        if(difference !== null){
+
+            if(difference < 0){
+
+                shortage +=
+                    Math.abs(difference);
+
+            }
+
+            else if(difference > 0){
+
+                over +=
+                    difference;
+
+            }
+
+        }
+
+    });
+
+
+    document.getElementById(
+        "statItems"
+    ).textContent =
+        products.length;
+
+
+    document.getElementById(
+        "statTotal"
+    ).textContent =
+        total.toLocaleString("ar-EG");
+
+
+    document.getElementById(
+        "statFridge"
+    ).textContent =
+        fridge.toLocaleString("ar-EG");
+
+
+    document.getElementById(
+        "statShort"
+    ).textContent =
+        shortage.toLocaleString("ar-EG");
+
+
+    document.getElementById(
+        "statOver"
+    ).textContent =
+        over.toLocaleString("ar-EG");
+
+}
+
+
+/* =========================================================
+   REPORT
+========================================================= */
+
+function buildReport(){
+
+    const lines = [];
+
+    const now =
+        new Date();
+
+
+    const date =
+        now.toLocaleDateString(
+            "ar-EG",
+            {
+                year:"numeric",
+                month:"2-digit",
+                day:"2-digit"
+            }
+        );
+
+
+    const time =
+        now.toLocaleTimeString(
+            "ar-EG",
+            {
+                hour:"2-digit",
+                minute:"2-digit"
+            }
+        );
+
+
+    lines.push(
+        "📋 تقرير جرد المخزون"
+    );
+
+    lines.push(
+        `📅 التاريخ: ${date}`
+    );
+
+    lines.push(
+        `⏰ الوقت: ${time}`
+    );
+
+    lines.push("");
+
+
+    let totalShort = 0;
+
+    let totalOver = 0;
+
+    let checked = 0;
+
+    let pending = 0;
+
+    let totalSystem = 0;
+
+    let totalActual = 0;
+
+    let totalWarehouse = 0;
+
+    let totalFridge = 0;
+
+
+    function makeSection(title,list){
+
+        if(!list.length){
+            return;
+        }
+
+
+        lines.push(title);
+
+        lines.push(
+            "━━━━━━━━━━━━━━━━"
+        );
+
+
+        list.forEach(product => {
+
+            const warehouse =
+                getWarehouseTotal(product);
+
+            const fridge =
+                toNumber(product.fridge);
+
+            const system =
+                warehouse + fridge;
+
+
+            totalWarehouse +=
+                warehouse;
+
+            totalFridge +=
+                fridge;
+
+            totalSystem +=
+                system;
+
+
+            if(
+                product.actual === "" ||
+                product.actual === null ||
+                product.actual === undefined
+            ){
+
+                pending++;
+
+                lines.push(
+                    `⏳ ${product.name}: لم يتم العد — المخزن ${warehouse} / التلاجة ${fridge} / الإجمالي ${system}`
+                );
+
+                return;
+
+            }
+
+
+            checked++;
+
+
+            const actual =
+                toNumber(product.actual);
+
+            totalActual +=
+                actual;
+
+
+            const diff =
+                actual - system;
+
+
+            if(diff === 0){
+
+                lines.push(
+                    `✅ ${product.name}: مطابق — المخزن ${warehouse} / التلاجة ${fridge} / النظام ${system} / الفعلي ${actual}`
+                );
+
+            }
+
+            else if(diff < 0){
+
+                const value =
+                    Math.abs(diff);
+
+                totalShort +=
+                    value;
+
+                lines.push(
+                    `🔴 ${product.name}: عجز ${value} عبوة — المخزن ${warehouse} / التلاجة ${fridge} / النظام ${system} / الفعلي ${actual}`
+                );
+
+            }
+
+            else{
+
+                totalOver +=
+                    diff;
+
+                lines.push(
+                    `🟢 ${product.name}: زيادة ${diff} عبوة — المخزن ${warehouse} / التلاجة ${fridge} / النظام ${system} / الفعلي ${actual}`
+                );
+
+            }
+
+        });
+
+
+        lines.push("");
+
+    }
+
+
+    makeSection(
+        "🥤 المشروبات الباردة",
+        products.filter(
+            p =>
+                p.category === "cold"
+        )
+    );
+
+
+    makeSection(
+        "☕ المشروبات الساخنة",
+        products.filter(
+            p =>
+                p.category === "hot"
+        )
+    );
+
+
+    lines.push(
+        "📊 ملخص"
+    );
+
+    lines.push(
+        "━━━━━━━━━━━━━━━━"
+    );
+
+    lines.push(
+        `📦 إجمالي المخزن: ${totalWarehouse} عبوة`
+    );
+
+    lines.push(
+        `🧊 إجمالي التلاجة: ${totalFridge} عبوة`
+    );
+
+    lines.push(
+        `📦 إجمالي مخزون النظام: ${totalSystem} عبوة`
+    );
+
+    lines.push(
+        `🔢 الأصناف التي تم عدها فعليًا: ${checked}`
+    );
+
+    lines.push(
+        `⏳ أصناف لم يتم عدها: ${pending}`
+    );
+
+    lines.push(
+        `🔴 إجمالي العجز: ${totalShort} عبوة`
+    );
+
+    lines.push(
+        `🟢 إجمالي الزيادة: ${totalOver} عبوة`
+    );
+
+
+    if(checked > 0){
+
+        lines.push(
+            `🔢 إجمالي العد الفعلي للأصناف المعدودة: ${totalActual} عبوة`
+        );
+
+    }
+
+
+    if(checked === 0){
+
+        lines.push("");
+
+        lines.push(
+            "⏳ لم يتم إدخال العد الفعلي لأي صنف حتى الآن."
+        );
+
+    }
+
+
+    return lines.join("\n");
+
+}
+
+
+/* =========================================================
+   UPDATE REPORT
+========================================================= */
+
+function updateReport(){
+
+    const report =
+        document.getElementById(
+            "reportText"
+        );
+
+    report.textContent =
+        buildReport();
+
+}
+
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+function sendWhatsApp(){
+
+    const report =
+        buildReport();
+
+
+    if(!report){
+
+        showToast(
+            "لا يوجد تقرير لإرساله"
+        );
+
+        return;
+
+    }
+
+
+    const message =
+        encodeURIComponent(
+            report
+        );
+
+
+    const url =
+        `https://wa.me/${WHATSAPP_PHONE}?text=${message}`;
+
+
+    window.location.href =
+        url;
+
+}
+
+
+/* =========================================================
+   COPY
+========================================================= */
+
+async function copyReport(){
+
+    const text =
+        buildReport();
+
+
+    if(!text){
+
+        showToast(
+            "لا يوجد تقرير لنسخه"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        if(
+            navigator.clipboard &&
+            typeof navigator.clipboard.writeText ===
+            "function"
+        ){
+
+            await navigator.clipboard.writeText(
+                text
+            );
+
+            showToast(
+                "✅ تم نسخ التقرير"
+            );
+
+            return;
+
+        }
+
+        throw new Error(
+            "Clipboard API unavailable"
+        );
+
+    }
+
+    catch(error){
+
+        try{
+
+            const textarea =
+                document.createElement(
+                    "textarea"
+                );
+
+            textarea.value =
+                text;
+
+            textarea.style.position =
+                "fixed";
+
+            textarea.style.top =
+                "-9999px";
+
+            textarea.style.left =
+                "-9999px";
+
+            textarea.setAttribute(
+                "readonly",
+                ""
+            );
+
+            document.body.appendChild(
+                textarea
+            );
+
+            textarea.focus();
+
+            textarea.select();
+
+            textarea.setSelectionRange(
+                0,
+                textarea.value.length
+            );
+
+
+            const copied =
+                document.execCommand(
+                    "copy"
+                );
+
+
+            document.body.removeChild(
+                textarea
+            );
+
+
+            if(copied){
+
+                showToast(
+                    "✅ تم نسخ التقرير"
+                );
+
+            }
+
+            else{
+
+                showToast(
+                    "تعذر نسخ التقرير"
+                );
+
+            }
+
+        }
+
+        catch(fallbackError){
+
+            console.error(
+                fallbackError
+            );
+
+            showToast(
+                "تعذر نسخ التقرير"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   ADD MODAL
+========================================================= */
+
+function openAddModal(){
+
+    editingId = null;
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        "إضافة صنف جديد";
+
+
+    document.getElementById(
+        "productName"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "productCategory"
+    ).value =
+        currentCategory === "all"
+        ? "cold"
+        : currentCategory;
+
+
+    document.getElementById(
+        "unitType"
+    ).value =
+        "unit";
+
+
+    document.getElementById(
+        "packSize"
+    ).value =
+        "24";
+
+
+    togglePackSize();
+
+
+    document.getElementById(
+        "modal"
+    ).classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        () => {
+
+            document
+                .getElementById(
+                    "productName"
+                )
+                .focus();
+
+        },
+        50
+    );
+
+}
+
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+function editProduct(id){
+
+    const product =
+        products.find(
+            p =>
+                String(p.id) ===
+                String(id)
+        );
+
+
+    if(!product){
+        return;
+    }
+
+
+    editingId =
+        product.id;
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        "تعديل الصنف";
+
+
+    document.getElementById(
+        "productName"
+    ).value =
+        product.name;
+
+
+    document.getElementById(
+        "productCategory"
+    ).value =
+        product.category;
+
+
+    document.getElementById(
+        "unitType"
+    ).value =
+        product.unit;
+
+
+    document.getElementById(
+        "packSize"
+    ).value =
+        product.pack === 12
+        ? "12"
+        : "24";
+
+
+    togglePackSize();
+
+
+    document.getElementById(
+        "modal"
+    ).classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        () => {
+
+            document
+                .getElementById(
+                    "productName"
+                )
+                .focus();
+
+        },
+        50
+    );
+
+}
+
+
+/* =========================================================
+   SAVE PRODUCT
+========================================================= */
+
+function saveProduct(){
+
+    const nameInput =
+        document.getElementById(
+            "productName"
+        );
+
+
+    const name =
+        nameInput.value.trim();
+
+
+    if(!name){
+
+        showToast(
+            "⚠️ من فضلك اكتب اسم الصنف"
+        );
+
+        nameInput.focus();
+
+        return;
+
+    }
+
+
+    const category =
+        document.getElementById(
+            "productCategory"
+        ).value;
+
+
+    const unit =
+        document.getElementById(
+            "unitType"
+        ).value;
+
+
+    const pack =
+        unit === "carton"
+        ? (
+            Number(
+                document.getElementById(
+                    "packSize"
+                ).value
+            ) === 12
+            ? 12
+            : 24
+        )
+        : 1;
+
+
+    const duplicate =
+        products.find(product => {
+
+            const sameId =
+                editingId !== null &&
+                String(product.id) ===
+                String(editingId);
+
+
+            if(sameId){
+                return false;
+            }
+
+
+            return (
+                product.category === category &&
+                product.name.trim().toLowerCase() ===
+                name.toLowerCase()
+            );
+
+        });
+
+
+    if(duplicate){
+
+        showToast(
+            "⚠️ هذا الصنف موجود بالفعل في نفس القسم"
+        );
+
+        return;
+
+    }
+
+
+    if(editingId !== null){
+
+        const product =
+            products.find(
+                p =>
+                    String(p.id) ===
+                    String(editingId)
+            );
+
+
+        if(!product){
+
+            showToast(
+                "حدث خطأ أثناء تعديل الصنف"
+            );
+
+            return;
+
+        }
+
+
+        product.name =
+            name;
+
+        product.category =
+            category;
+
+        product.unit =
+            unit;
+
+        product.pack =
+            unit === "carton"
+            ? pack
+            : 1;
+
+
+        if(
+            unit === "carton"
+        ){
+
+            product.open =
+                Math.min(
+                    toNumber(product.open),
+                    product.pack
+                );
+
+        }
+
+    }
+
+    else{
+
+        products.push({
+
+            id:
+                createUniqueId(),
+
+            name,
+
+            category,
+
+            unit,
+
+            pack,
+
+            cartons:0,
+
+            open:0,
+
+            fridge:0,
+
+            actual:""
+
+        });
+
+    }
+
+
+    save();
+
+    closeModal();
+
+    render();
+
+    showToast(
+        "✅ تم حفظ الصنف بنجاح"
+    );
+
+}
+
+
+/* =========================================================
+   UNIQUE ID
+========================================================= */
+
+function createUniqueId(){
+
+    let id =
+        Date.now();
+
+
+    while(
+        products.some(
+            product =>
+                String(product.id) ===
+                String(id)
+        )
+    ){
+
+        id++;
+
+    }
+
+
+    return id;
+
+}
+
+
+/* =========================================================
+   DELETE
+========================================================= */
+
+function deleteProduct(id){
+
+    const index =
+        products.findIndex(
+            p =>
+                String(p.id) ===
+                String(id)
+        );
+
+
+    if(index === -1){
+        return;
+    }
+
+
+    const product =
+        products[index];
+
+
+    const confirmed =
+        window.confirm(
+            `هل أنت متأكد من حذف "${product.name}"؟\n\nسيتم حذف بيانات الجرد الخاصة بهذا الصنف.`
+        );
+
+
+    if(!confirmed){
+        return;
+    }
+
+
+    products.splice(
+        index,
+        1
+    );
+
+
+    save();
+
+    render();
+
+    showToast(
+        "🗑️ تم حذف الصنف"
+    );
+
+}
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+function clearCounts(){
+
+    const confirmed =
+        window.confirm(
+            "هل تريد تصفير جميع أعداد الجرد؟\n\nسيتم تصفير أعداد المخزن والتلاجة والعد الفعلي، ولن يتم حذف الأصناف."
+        );
+
+
+    if(!confirmed){
+        return;
+    }
+
+
+    products.forEach(product => {
+
+        product.cartons = 0;
+
+        product.open = 0;
+
+        product.fridge = 0;
+
+        product.actual = "";
+
+    });
+
+
+    save();
+
+    render();
+
+    showToast(
+        "✅ تم تصفير الجرد بالكامل"
+    );
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function closeModal(){
+
+    document
+        .getElementById("modal")
+        .classList.remove(
+            "show"
+        );
+
+
+    editingId = null;
+
+}
+
+
+/* =========================================================
+   PACK SIZE
+========================================================= */
+
+function togglePackSize(){
+
+    const unit =
+        document.getElementById(
+            "unitType"
+        ).value;
+
+
+    const wrap =
+        document.getElementById(
+            "packSizeWrap"
+        );
+
+
+    wrap.style.display =
+        unit === "carton"
+        ? "block"
+        : "none";
+
+}
+
+
+/* =========================================================
+   UNIT TEXT
+========================================================= */
+
+function getUnitText(unit){
+
+    const map = {
+
+        carton:"كرتونة",
+
+        box:"علبة",
+
+        piece:"قطعة",
+
+        bag:"كيس",
+
+        unit:"وحدة"
+
+    };
+
+
+    return map[unit] || "وحدة";
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text){
+
+    return String(text)
+        .replace(
+            /[&<>"']/g,
+            function(char){
+
+                return {
+
+                    "&":"&amp;",
+                    "<":"&lt;",
+                    ">":"&gt;",
+                    '"':"&quot;",
+                    "'":"&#039;"
+
+                }[char];
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2800
+        );
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+
+/* Search */
+
+document
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        render
+    );
+
+
+/* Add */
+
+document
+    .getElementById("addBtn")
+    .addEventListener(
+        "click",
+        openAddModal
+    );
+
+
+/* WhatsApp */
+
+document
+    .getElementById("whatsappBtn")
+    .addEventListener(
+        "click",
+        sendWhatsApp
+    );
+
+
+document
+    .getElementById("reportWhatsappBtn")
+    .addEventListener(
+        "click",
+        sendWhatsApp
+    );
+
+
+/* Copy */
+
+document
+    .getElementById("copyBtn")
+    .addEventListener(
+        "click",
+        copyReport
+    );
+
+
+/* Clear */
+
+document
+    .getElementById("clearBtn")
+    .addEventListener(
+        "click",
+        clearCounts
+    );
+
+
+/* Print */
+
+document
+    .getElementById("printBtn")
+    .addEventListener(
+        "click",
+        function(){
+
+            window.print();
+
+        }
+    );
+
+
+/* Tabs */
+
+document
+    .querySelectorAll(".tab")
+    .forEach(tab => {
+
+        tab.addEventListener(
+            "click",
+            function(){
+
+                setCategory(
+                    this.dataset.category
+                );
+
+            }
+        );
+
+    });
+
+
+/* Unit */
+
+document
+    .getElementById("unitType")
+    .addEventListener(
+        "change",
+        togglePackSize
+    );
+
+
+/* Close */
+
+document
+    .getElementById("closeModalBtn")
+    .addEventListener(
+        "click",
+        closeModal
+    );
+
+
+/* Save */
+
+document
+    .getElementById("saveProductBtn")
+    .addEventListener(
+        "click",
+        saveProduct
+    );
+
+
+/* Enter product */
+
+document
+    .getElementById("productName")
+    .addEventListener(
+        "keydown",
+        function(event){
+
+            if(event.key === "Enter"){
+
+                event.preventDefault();
+
+                saveProduct();
+
+            }
+
+        }
+    );
+
+
+/* Enter pack */
+
+document
+    .getElementById("packSize")
+    .addEventListener(
+        "keydown",
+        function(event){
+
+            if(event.key === "Enter"){
+
+                event.preventDefault();
+
+                saveProduct();
+
+            }
+
+        }
+    );
+
+
+/* Modal outside */
+
+document
+    .getElementById("modal")
+    .addEventListener(
+        "click",
+        function(event){
+
+            if(event.target === this){
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+/* Escape */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Escape" &&
+            document
+                .getElementById("modal")
+                .classList.contains("show")
+        ){
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CARD EVENTS
+========================================================= */
+
+document
+    .getElementById("cards")
+    .addEventListener(
+        "change",
+        function(event){
+
+            const input =
+                event.target.closest(
+                    ".inventory-input"
+                );
+
+
+            if(!input){
+                return;
+            }
+
+
+            updateValue(
+                input.dataset.id,
+                input.dataset.key,
+                input.value
+            );
+
+        }
+    );
+
+
+document
+    .getElementById("cards")
+    .addEventListener(
+        "click",
+        function(event){
+
+            const editButton =
+                event.target.closest(
+                    ".edit-btn"
+                );
+
+
+            if(editButton){
+
+                editProduct(
+                    editButton.dataset.id
+                );
+
+                return;
+
+            }
+
+
+            const deleteButton =
+                event.target.closest(
+                    ".delete-btn"
+                );
+
+
+            if(deleteButton){
+
+                deleteProduct(
+                    deleteButton.dataset.id
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+loadProducts();
+
+togglePackSize();
+
+render();
+
+</script>
+
+</body>
+</html>
